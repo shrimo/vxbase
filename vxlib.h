@@ -24,22 +24,23 @@ void read_line(char *fname)
    struct TLine line;
    FILE *fr;
 
-   fr = fopen(fname, "r");
+   fr = fopen(fname, "rb");
    while (fread (&line, sizeof(struct TLine), 1, fr))
    fclose(fr);
    printf(line.scene, line.shot, line.data, line.source, line.id);   
 };
 
-int search_line (char *fname, char *str)
+int search_line (char  *fname, char  *str, int  swh)
 {
         struct TLine line[255];
         FILE *fe;
 	
-        if((fe = fopen(fname, "r")) == NULL) 
+        if((fe = fopen(fname, "rb")) == NULL) 
         {
                 return(-1);
         }
-        fe = fopen("data.txt", "r");
+        
+        fe = fopen("data.txt", "rb"); /*Read from data file*/
         int i=0;        
         char num[12];
         while(!feof(fe))
@@ -56,11 +57,22 @@ int search_line (char *fname, char *str)
         
         i=0;
         int ilend=0;
-        while (strlen(line[i].shot) != 0 )
+        char tmp[255];
+        
+        while (strlen(line[i].shot) != 0 ) /*If variable is not empty*/
         {
-                if((strstr(line[i].shot, str)) != NULL) 
+            switch (swh){ /*Select line*/
+                case 1:
+                    strcpy(tmp, line[i].scene);
+                     break;
+                case 2 :
+                    strcpy(tmp, line[i].shot);
+                     break;
+            }
+                
+                if((strstr(tmp, str)) != NULL) /*Search by keyword*/
                 {
-                        printf("A match found on line: %d\n", i);
+                        printf("A match found on line: %d\n", i+1);
                         printf(" %s %s %s %s %s",line[i].scene, line[i].shot, line[i].data, line[i].source, line[i].id);
                         ilend++;
                 }
