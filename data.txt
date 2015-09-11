@@ -1,15 +1,15 @@
 Forest
-shot 01
+shot_01
 Retouch wires
 -scene-shot01-data.exr
 001
 City
-shot 02
+shot_02
 Retouch wires
 -scene-shot02-data.exr
 002
 River
-shot 03
+shot_03
 Retouch wires
 -scene-shot03-data.exr
 003
