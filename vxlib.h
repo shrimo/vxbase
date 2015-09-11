@@ -1,10 +1,10 @@
 struct TLine
 {
-   char  scene[100];
+   char scene[100];
    char shot[100];
-   char  data[255];
-   char  source[255];
-   char   id[12];
+   char data[255];
+   char source[255];
+   char id[12];
 };
 
 void wrile_line(char scene[255], char shot[255], char data[255], char source[255], char id[12])
@@ -50,25 +50,24 @@ int search_line (char *fname, char *str)
                 fgets(line[i].source, 255, (FILE*)fe);
                 fgets(line[i].id, 255, (FILE*)fe);
                 sprintf(num, "%u", i );
-                //printf(num);
-                //printf(": %s", line[i].scene );
-                i=i+1;
+                i++;
         }        
         fclose(fe);
         
-        i=0;        
+        i=0;
+        int ilend=0;
         while (strlen(line[i].shot) != 0 )
         {
                 if((strstr(line[i].shot, str)) != NULL) 
                 {
                         printf("A match found on line: %d\n", i);
                         printf(" %s %s %s %s %s",line[i].scene, line[i].shot, line[i].data, line[i].source, line[i].id);
+                        ilend++;
                 }
                 i++;
         }
-        return(0);
-
-        if(i == 0) 
+        //return(0);        
+        if( ilend == 0 ) 
         {
                 printf("\nSorry, couldn't find a match.\n");
         }
