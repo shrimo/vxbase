@@ -37,7 +37,7 @@ int main()
 		send(sock_desc,sbuff,strlen(sbuff),0);
 		bzero(rbuff,MAX_SIZE);
 
-		if(recv(sock_desc,rbuff,MAX_SIZE,0)==0)
+		if(recv(sock_desc,sbuff,MAX_SIZE,0)==0)
            printf("Error");
 		else
 			printf("data receive: %s\n", sbuff);
