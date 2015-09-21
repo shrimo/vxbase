@@ -23,7 +23,7 @@ int visits =  0;                        /* counts client connections     */
 
 int main (int argc, char *argv[])
 {
-	struct   hostent   *ptrh;     /* pointer to a host table entry */
+	//struct   hostent   *ptrh;     /* pointer to a host table entry */
 	struct   protoent  *ptrp;     /* pointer to a protocol table entry */
 	struct   sockaddr_in sad;     /* structure to hold server's address */
 	struct   sockaddr_in cad;     /* structure to hold client's address */
@@ -88,7 +88,8 @@ int main (int argc, char *argv[])
 	while (1) 
 	{
 		printf("SERVER: Waiting for contact ...\n");         
-		if (  (sd2=accept(sd, (struct sockaddr *)&cad, &alen)) < 0) {
+		if ((sd2=accept(sd, (struct sockaddr *)&cad, &alen)) < 0) 
+		{
 			fprintf(stderr, "accept failed\n");
 			exit (1);
 		}
@@ -144,9 +145,12 @@ void * serverthread(void * parm)
 			if (strstr(tmp,"ls")!=NULL)
 			{
 				printf(">>>>>ls\n");
+				send(tsd,">>>ls",6,0);
+				bzero(tmp,MAX_SIZE);
+			}else{
+				printf("data send:%s\n", tmp);
+				send(tsd,tmp,strlen(tmp),0);
 			}
-			printf("data send:%s\n", tmp);
-			send(tsd,tmp,strlen(tmp),0);
 		}
 	bzero(tmp,MAX_SIZE);
 	}
