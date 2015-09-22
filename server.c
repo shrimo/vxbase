@@ -92,13 +92,13 @@ int main (int argc, char *argv[])
 		send(sd2,"Enter user name: ",17,0);
 		if ( recv(sd2, msg, sizeof(msg), 0)!=0 )
 		{
-			get_user("user.vx"); //get struct User_Base
+			get_user("user.conf"); //get struct User_Base
 			char *u_test=select_user(msg); //True if the user exists
 			//printf("%s\n",msg);
 			if (strstr(u_test,"True")!=NULL)
 			{
 				printf("login %s\n",msg);
-				v_read ("data.db");				//load data base
+				v_read ("data.db", msg);				//load data base
 				char lg[255]="login ";
 				strcat (lg, msg);
 				strcat (lg, "\n");
@@ -185,4 +185,4 @@ void * serverthread(void * parm)
    close(tsd);
    pthread_exit(0);
    exit(0);   
-} 
+}
