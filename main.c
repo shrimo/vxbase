@@ -1,27 +1,38 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "vxlib.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include "vxcore_lib.h"
+#include "vxscripts.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 {
-    printf ("VXDatabase 0.01\n");
-        if(argc!=3) {
-                printf("No request\n");
+    printf("VX database core v 0.01\n");
+    /*if(argc!=3) {
+                printf("No command-line arguments\n");
                 exit(1);
         }
-        struct TLine _line;
-        //wrile_line("Forest\n", "shot_01\n", "Retouch wires\n",  "-scene-shot01-data.exr\n", "001\n");
-        //wrile_line("City\n", "shot_02\n", "Retouch wires\n",  "-scene-shot02-data.exr\n", "002\n");
-        //wrile_line("River\n", "shot_03\n", "Retouch wires\n",  "-scene-shot03-data.exr\n", "003\n");
+    if((strstr(argv[1], "help")) != NULL){
+            printf("read (file name) - read db file\n");
+            printf("add (name, type, data) - append variable\n");
+            printf("write (file name) - write db file\n");
+            printf("print (if (-1) - list all) - print tale or line\n");
+    };
+    if((strstr(argv[1], "-f")) != NULL){
+            printf("Read scrpt file ->%s \n", argv[2]);
+            scripts(argv[2]);
+    };*/
+    //printf ("%s %s\n\n", argv[1], argv[2]);
+    v_add("variable_01\n", "root\n", "vchar\n","text 01\n");
+    v_add("variable_02\n", "user\n", "vchar\n","text 02\n");
+    v_add("variable_03\n", "guest\n", "vchar\n","text 03\n");
+    v_add("variable_04\n", "root\n", "vchar\n","text 04\n");
+    v_add("variable_05\n", "user\n", "vchar\n","text 05\n");
     
-        //printf("->Load data\n\n");
-        //read_line("data.txt");
+    //v_read("data.db");
+    //v_print(1);
     
-        printf("\n->Search line\n");
-
-        search_line("data.txt",argv[1], atoi(argv[2]));
-    
-        printf("\n->End\n");
-        return 0;
+    v_write("data.db");
+    return 0;
 };
