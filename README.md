@@ -1,8 +1,8 @@
-vxbase
+VXbase
 ========================
-database ver 0.01
+Database ver 0.01
 
-Compile
+Compile (linux)
 ```
 gcc -o server server.c -lpthread
 ```
