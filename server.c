@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
     fprintf( stderr, "Starting server.\n");
 	while (1)
 	{
-		printf("waiting ...\n");         
+		printf("waiting ...\n");
 		if ((sd2=accept(sd, (struct sockaddr *)&cad, &alen)) < 0) 
 		{
 			fprintf(stderr, "accept failed\n");
@@ -101,7 +101,7 @@ int main (int argc, char *argv[])
 				v_read ("data.db");				//load data base
 				char lg[255]="login ";
 				strcat (lg, msg);
-				strcat (lg, "\n");				
+				strcat (lg, "\n");
 				send(sd2,lg,strlen(lg),0);
 				strcpy(current_user,msg);		////Copy user name in current_user
 				pthread_create(&tid, NULL, serverthread, (void *) sd2 );
@@ -125,8 +125,8 @@ void * serverthread(void * parm)
 	char buf[MAX_SIZE];           /* buffer for string the server sends */
 	char tmp[MAX_SIZE];
 	char c_u[MAX_SIZE];
+	
 	strcpy(c_u, current_user);
-
 	tsd = (int) parm;
 	
 	pthread_mutex_lock(&mut);
@@ -161,13 +161,20 @@ void * serverthread(void * parm)
 				send(tsd,c_u,strlen(c_u),0);
 				bzero(tmp,MAX_SIZE);
 			}
+			if (strstr(tmp,"q")!=NULL)
+			{
+				printf("Quit user: %s\n",c_u);
+				bzero(tmp,MAX_SIZE);
+				close(tsd);
+				pthread_exit(0);
+			}
 			if (strstr(tmp,"ls")!=NULL)
 			{
 				printf(">>>>>ls\n");
 				send(tsd,">>>ls",6,0);
 				bzero(tmp,MAX_SIZE);
 			}else{
-				printf("data send:%s\n", tmp);
+				printf("Data send:%s\n", tmp);
 				send(tsd,tmp,strlen(tmp),0);
 				bzero(tmp,MAX_SIZE);
 			}
@@ -177,6 +184,5 @@ void * serverthread(void * parm)
 	
    close(tsd);
    pthread_exit(0);
-   exit(0);
-   
+   exit(0);   
 } 
