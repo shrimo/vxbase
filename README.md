@@ -1,6 +1,11 @@
 vxbase
 ========================
 database ver 0.01
+
+```
+gcc -o server server.c -lpthread
+```
+
 ```
 $ ./server
 
