@@ -1,21 +1,24 @@
 vxbase
 ========================
-## database ver 0.01 ##
+database ver 0.01
 ```
 $ ./server
-```
+
 Starting server.
-waiting ...
+waiting...
 
-$python client.py
+```
+```
+$ python client.py
 
- TCP client ( TYPE q or Q to Quit)
- Enter user name: 
-root
+TCP client ( TYPE q or Q to Quit)
+Enter user name: 
+>root
 login root
 
-user
+>user
 root
+```
 
 
 search_line (char  *fname, char  *str, int  swh)
