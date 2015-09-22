@@ -2,6 +2,7 @@ vxbase
 ========================
 database ver 0.01
 
+Compile
 ```
 gcc -o server server.c -lpthread
 ```
@@ -24,6 +25,14 @@ login root
 >user
 root
 ```
-
-
-search_line (char  *fname, char  *str, int  swh)
+```
+>read
+variable_01
+vchar
+text 01
+0
+variable_04
+vchar
+text 04
+3
+```
