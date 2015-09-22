@@ -94,7 +94,7 @@ int main (int argc, char *argv[])
 		{
 			get_user("user.vx"); //get struct User_Base
 			char *u_test=select_user(msg); //True if the user exists
-			printf("%s\n",msg);
+			//printf("%s\n",msg);
 			if (strstr(u_test,"True")!=NULL)
 			{
 				printf("login %s\n",msg);
