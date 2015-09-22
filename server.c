@@ -10,16 +10,17 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "vxcore_lib.h"
+#include "vxscripts.h"
+#include "vxuser.h"
+
 void * serverthread(void * parm);       /* thread function prototype    */
 
 pthread_mutex_t  mut;
 
-#define PROTOPORT         8000          /* default protocol port number */
-#define QLEN              6             /* size of request queue        */
-#define MAX_SIZE 255
-
-
 int visits =  0;                        /* counts client connections     */
+
+char current_user[MAX_SIZE];
 
 int main (int argc, char *argv[])
 {
@@ -40,8 +41,6 @@ int main (int argc, char *argv[])
 	sad.sin_addr.s_addr = INADDR_ANY;    /* set the local IP address */
 
     /* Check  command-line argument for protocol port and extract      */
-    /* port number if one is specfied.  Otherwise, use the default     */
-    /* port value given by constant PROTOPORT                          */
     
     if (argc > 1) {                        /* if argument specified     */
 		port = atoi (argv[1]); /* convert argument to binary*/
@@ -54,40 +53,35 @@ int main (int argc, char *argv[])
 		fprintf (stderr, "bad port number %s/n",argv[1]);
 		exit (1);
     }
-
-    /* Map TCP transport protocol name to protocol number */
      
-    if ( ((int)(ptrp = getprotobyname("tcp"))) == 0)  {
+    if ( ((int)(ptrp = getprotobyname("tcp"))) == 0){  /* Map TCP transport protocol name to protocol number */ 
 		fprintf(stderr, "cannot map \"tcp\" to protocol number");
 		exit (1);
     }
-
-    /* Create a socket */
-    sd = socket (PF_INET, SOCK_STREAM, ptrp->p_proto);
+    
+    sd = socket (PF_INET, SOCK_STREAM, ptrp->p_proto); /* Create a socket */
     if (sd < 0) {
 		fprintf(stderr, "socket creation failed\n");
 		exit(1);
     }
 
-    /* Bind a local address to the socket */
-    if (bind(sd, (struct sockaddr *)&sad, sizeof (sad)) < 0) {
+    if (bind(sd, (struct sockaddr *)&sad, sizeof (sad)) < 0) { /* Bind a local address to the socket */
 		fprintf(stderr,"bind failed\n");
 		exit(1);
     }
-
-    /* Specify a size of request queue */
-    if (listen(sd, QLEN) < 0) {
+    
+    if (listen(sd, QLEN) < 0) { /* Specify a size of request queue */
 		fprintf(stderr,"listen failed\n");
 		exit(1);
     }
 
     alen = sizeof(cad);
-
-    /* Main server loop - accept and handle requests */
-    fprintf( stderr, "Server up and running.\n");
-	while (1) 
+	
+	/* Main server loop - accept and handle requests */
+    fprintf( stderr, "Starting server.\n");
+	while (1)
 	{
-		printf("SERVER: Waiting for contact ...\n");         
+		printf("waiting ...\n");         
 		if ((sd2=accept(sd, (struct sockaddr *)&cad, &alen)) < 0) 
 		{
 			fprintf(stderr, "accept failed\n");
@@ -95,15 +89,28 @@ int main (int argc, char *argv[])
 		}
 		
 		//user login
+		send(sd2,"Enter user name: ",17,0);
 		if ( recv(sd2, msg, sizeof(msg), 0)!=0 )
 		{
-			if (strstr(msg,"root")!=NULL)
+			get_user("user.vx"); //get struct User_Base
+			char *u_test=select_user(msg); //True if the user exists
+			printf("%s\n",msg);
+			if (strstr(u_test,"True")!=NULL)
 			{
-				printf("Login %s\n",msg);
-				send(sd2,"Login root ",11,0);
+				printf("login %s\n",msg);
+				v_read ("data.db");				//load data base
+				char lg[255]="login ";
+				strcat (lg, msg);
+				strcat (lg, "\n");				
+				send(sd2,lg,strlen(lg),0);
+				strcpy(current_user,msg);		////Copy user name in current_user
 				pthread_create(&tid, NULL, serverthread, (void *) sd2 );
-				bzero(msg,MAX_SIZE);		
+				bzero(msg,MAX_SIZE);
 				//return(1);
+			}else
+			{
+				send(sd2,"Enter user name: ",17,0);
+				bzero(msg,MAX_SIZE);
 			}
 		}
 		bzero(msg,MAX_SIZE);
@@ -112,15 +119,16 @@ int main (int argc, char *argv[])
      close(sd);
 }
 
-
 void * serverthread(void * parm)
 {
 	int tsd, tvisits;
 	char buf[MAX_SIZE];           /* buffer for string the server sends */
 	char tmp[MAX_SIZE];
+	char c_u[MAX_SIZE];
+	strcpy(c_u, current_user);
 
 	tsd = (int) parm;
-
+	
 	pthread_mutex_lock(&mut);
 	tvisits = ++visits;
 	pthread_mutex_unlock(&mut);
@@ -135,12 +143,23 @@ void * serverthread(void * parm)
 	{		
 		if ( recv(tsd, tmp, sizeof(tmp), 0)!=0 )
 		{
-			if (strstr(tmp,"exit")!=NULL)
-			{
-				printf(">>>>>exit\n");
-				close(tsd);
-				pthread_exit(0);
-				exit (1);
+			if (strstr(tmp,"read")!=NULL)
+			{				
+				int i=0;
+				while (i != counter)
+				{
+					send(tsd,v_line[i].v_name,strlen(v_line[i].v_name),0);
+					send(tsd,v_line[i].v_type,strlen(v_line[i].v_type),0);
+					send(tsd,v_line[i].v_data,strlen(v_line[i].v_data),0);
+					send(tsd,v_line[i].v_id,strlen(v_line[i].v_id),0);
+					i++;
+				}
+				bzero(tmp,MAX_SIZE);
+			}
+			if (strstr(tmp,"user")!=NULL)
+			{				
+				send(tsd,c_u,strlen(c_u),0);
+				bzero(tmp,MAX_SIZE);
 			}
 			if (strstr(tmp,"ls")!=NULL)
 			{
@@ -150,6 +169,7 @@ void * serverthread(void * parm)
 			}else{
 				printf("data send:%s\n", tmp);
 				send(tsd,tmp,strlen(tmp),0);
+				bzero(tmp,MAX_SIZE);
 			}
 		}
 	bzero(tmp,MAX_SIZE);
