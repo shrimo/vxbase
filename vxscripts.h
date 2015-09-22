@@ -1,3 +1,5 @@
+/*read scrpipts file and interpretation*/
+
 struct S_Line
 {
     char in_line[255];
@@ -5,7 +7,7 @@ struct S_Line
 
 char fdir[255];
 
-void scripts (char fname[255]){
+void scripts (char fname[255],char user[255]){
     struct S_Line s_line[255];
     char tmp[255];
     FILE *fs;
@@ -33,12 +35,12 @@ void scripts (char fname[255]){
             printf("->find read\n");
             if(strstr(s_line[i].in_line, "(\"") != NULL) 
             {
-                printf("-->find (\"\n");                
+                printf("-->find (\"\n");     
                 istr = strcspn (s_line[i].in_line, "(\"\")");
                 int dir=istr+1;                
                 strcpy(tmp, s_line[i].in_line);
                 squeeze(tmp,"\")\n");                                
-                v_read(&tmp[dir]);                
+                v_read(&tmp[dir],user);                
             }           
         }
         if(strstr(s_line[i].in_line, "print") != NULL) 
