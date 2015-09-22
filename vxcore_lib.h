@@ -1,3 +1,7 @@
+#define PROTOPORT         8000          /* default protocol port number */
+#define QLEN              6             /* size of request queue        */
+#define MAX_SIZE 255
+
 struct VLine
 {
    char v_name[100];
@@ -18,7 +22,7 @@ void v_add(char name[255], char type[100],char data[255])
        strcpy(v_line[counter].v_type, type);
        strcpy(v_line[counter].v_data, data);
        sprintf(num, "%u", counter );
-       strcpy(v_line[counter].v_id, strcat (num, "\n"));       
+       strcpy(v_line[counter].v_id, strcat (num, "\n"));
        counter++;
 };
 
@@ -59,9 +63,9 @@ void v_write(char fname)
         fclose(fw);
 };
 
-int v_read (char *fname)
+void v_read (char *fname)
 {
-    printf("Read %s\n", fname);
+    //printf("Read %s\n", fname);
     FILE *fe;    
      if((fe = fopen(fname, "rb")) == NULL) 
         {
@@ -80,7 +84,7 @@ int v_read (char *fname)
                 counter=i;
         }        
         fclose(fe);    
-}
+};
 
 void squeeze (char s[], char s2[]) {
 	int k, i, j;
