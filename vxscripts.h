@@ -1,4 +1,7 @@
 /*read scrpipts file and interpretation*/
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 struct S_Line
 {
@@ -7,17 +10,20 @@ struct S_Line
 
 char fdir[255];
 
-void scripts (char fname[255],char user[255]){
+void scripts (char *fname, char user[255]){
+	
     struct S_Line s_line[255];
     char tmp[255];
+	int i=0;
+    char buff[255];
+    
     FILE *fs;
     if((fs = fopen(fname, "rb")) == NULL) 
         {
+         printf ("none data\n");
                 return(-1);
         }
-    fs = fopen(fname, "rb");
-    int i=0;
-    char buff[255];
+      fs = fopen(fname, "rb"); /*Read from data file*/
     while(!feof(fs))
         {     
                 fgets(buff, 255, (FILE*)fs);
@@ -27,9 +33,11 @@ void scripts (char fname[255],char user[255]){
      fclose(fs);    
 
      i=0;
-     char *istr;
+     int dir;
+     int istr;
+     
      while(strstr(s_line[i].in_line, "end") == NULL)
-     {
+     {		
         if(strstr(s_line[i].in_line, "read") != NULL) 
         {            
             printf("->find read\n");
@@ -37,10 +45,10 @@ void scripts (char fname[255],char user[255]){
             {
                 printf("-->find (\"\n");     
                 istr = strcspn (s_line[i].in_line, "(\"\")");
-                int dir=istr+1;                
+                dir=istr+1;                
                 strcpy(tmp, s_line[i].in_line);
-                squeeze(tmp,"\")\n");                                
-                v_read(&tmp[dir],user);                
+                squeeze(tmp,"\")\n");                                                
+                v_read(&tmp[dir],user);
             }           
         }
         if(strstr(s_line[i].in_line, "print") != NULL) 
@@ -50,7 +58,7 @@ void scripts (char fname[255],char user[255]){
             {
                 printf("-->find (\"\n");                
                 istr = strcspn (s_line[i].in_line, "(\"\")");
-                int dir=istr+1;                
+                dir=istr+1;                
                 strcpy(tmp, s_line[i].in_line);
                 squeeze(tmp,"\")\n");                                
                 v_print(atoi(&tmp[dir]));
