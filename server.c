@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "vxcore_lib.h"
 #include "vxscripts.h"
@@ -30,7 +31,8 @@ int main (int argc, char *argv[])
 	struct   sockaddr_in cad;     /* structure to hold client's address */
 	int      sd, sd2;             /* socket descriptors */
 	int      port;                /* protocol port number */
-	int      alen;                /* length of address */
+	//int      alen;                /* length of address */
+	socklen_t           alen;
 	pthread_t  tid;             /* variable to hold thread ID */
 	
 	char msg[MAX_SIZE];
@@ -75,14 +77,15 @@ int main (int argc, char *argv[])
 		exit(1);
     }
 
-    alen = sizeof(cad);
+    alen = sizeof(struct sockaddr_in);
 	
 	/* Main server loop - accept and handle requests */
     fprintf( stderr, "Starting server.\n");
 	while (1)
 	{
 		printf("waiting ...\n");
-		if ((sd2=accept(sd, (struct sockaddr *)&cad, &alen)) < 0) 
+		sd2=accept(sd, (struct sockaddr *)&cad, &alen);
+		if (sd2 < 0)
 		{
 			fprintf(stderr, "accept failed\n");
 			exit (1);
@@ -92,8 +95,8 @@ int main (int argc, char *argv[])
 		send(sd2,"Enter user name: ",17,0);
 		if ( recv(sd2, msg, sizeof(msg), 0)!=0 )
 		{
-			get_user("user.conf"); //get struct User_Base
-			char *u_test=select_user(msg); //True if the user exists
+			get_user("user.conf");			//get struct User_Base
+			char *u_test=select_user(msg); 	//True if the user exists
 			//printf("%s\n",msg);
 			if (strstr(u_test,"True")!=NULL)
 			{
@@ -102,7 +105,7 @@ int main (int argc, char *argv[])
 				char lg[255]="login ";
 				strcat (lg, msg);
 				strcat (lg, "\n");
-				send(sd2,lg,strlen(lg),0);
+				send(sd2,lg,strlen(lg),0);				
 				strcpy(current_user,msg);		////Copy user name in current_user
 				pthread_create(&tid, NULL, serverthread, (void *) sd2 );
 				bzero(msg,MAX_SIZE);
@@ -122,11 +125,14 @@ int main (int argc, char *argv[])
 void * serverthread(void * parm)
 {
 	int tsd, tvisits;
-	char buf[MAX_SIZE];           /* buffer for string the server sends */
+	char buf[MAX_SIZE];             //buffer for string the server sends
 	char tmp[MAX_SIZE];
-	char c_u[MAX_SIZE];
+	char pt_user[MAX_SIZE];
+	int pt_count=counter;			//copy counter to pt_count
 	
-	strcpy(c_u, current_user);
+	strcpy(pt_user, current_user);		//user name for thread
+	struct VLine pt_line[1024];		//struct data for thread
+	
 	tsd = (int) parm;
 	
 	pthread_mutex_lock(&mut);
@@ -138,6 +144,17 @@ void * serverthread(void * parm)
 
 	printf("SERVER thread: %s", buf);
 	
+	int l=0;
+	while (l!=pt_count)			//copy stuct v_line to pt_line
+	{
+		strcpy(pt_line[l].v_name, v_line[l].v_name);
+		strcpy(pt_line[l].v_user, v_line[l].v_user);
+		strcpy(pt_line[l].v_type, v_line[l].v_type);
+		strcpy(pt_line[l].v_data, v_line[l].v_data);
+		strcpy(pt_line[l].v_id, v_line[l].v_id);
+		l++;
+	}
+	
 	//session server to client
 	while (1)
 	{		
@@ -146,24 +163,24 @@ void * serverthread(void * parm)
 			if (strstr(tmp,"read")!=NULL)
 			{				
 				int i=0;
-				while (i != counter)
+				while (i != pt_count)
 				{
-					send(tsd,v_line[i].v_name,strlen(v_line[i].v_name),0);
-					send(tsd,v_line[i].v_type,strlen(v_line[i].v_type),0);
-					send(tsd,v_line[i].v_data,strlen(v_line[i].v_data),0);
-					send(tsd,v_line[i].v_id,strlen(v_line[i].v_id),0);
+					send(tsd,pt_line[i].v_name,strlen(pt_line[i].v_name),0);
+					send(tsd,pt_line[i].v_type,strlen(pt_line[i].v_type),0);
+					send(tsd,pt_line[i].v_data,strlen(pt_line[i].v_data),0);
+					send(tsd,pt_line[i].v_id,strlen(pt_line[i].v_id),0);
 					i++;
 				}
 				bzero(tmp,MAX_SIZE);
 			}
 			if (strstr(tmp,"user")!=NULL)
 			{				
-				send(tsd,c_u,strlen(c_u),0);
+				send(tsd,pt_user,strlen(pt_user),0);
 				bzero(tmp,MAX_SIZE);
 			}
 			if (strstr(tmp,"q")!=NULL)
 			{
-				printf("Quit user: %s\n",c_u);
+				printf("Quit user: %s\n",pt_user);
 				bzero(tmp,MAX_SIZE);
 				close(tsd);
 				pthread_exit(0);
