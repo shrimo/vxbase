@@ -1,0 +1,5 @@
+variable 01|user|string|text 01|@
+variable 02|root|string|text 02|@
+variable 03|user|string|text 03|@
+variable 04|guest|text 04|@
+variable 05|root|user|@
