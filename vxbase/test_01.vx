@@ -1,0 +1,4 @@
+read ("data.db")
+print ("0")
+print ("2")
+end
