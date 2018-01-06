@@ -21,6 +21,10 @@ pthread_mutex_t  mut;
 
 int visits =  0;                        /* counts client connections     */
 
+int sesi = 0; /*command number*/
+
+char buffer [33];
+
 char current_user[MAX_SIZE];
 
 int main (int argc, char *argv[])
@@ -100,6 +104,7 @@ int main (int argc, char *argv[])
 			//printf("%s\n",msg);
 			if (strstr(u_test,"True")!=NULL)
 			{
+
 				printf("login %s\n",msg);
 				v_read ("data.db", msg);				//load data base
 				char lg[255]="login ";
@@ -157,7 +162,11 @@ void * serverthread(void * parm)
 	
 	//session server to client
 	while (1)
-	{		
+	{	
+		sesi++;
+		sprintf(buffer, "%d", sesi);
+		printf("command number > %s\n", buffer); /*command number*/
+
 		if ( recv(tsd, tmp, sizeof(tmp), 0)!=0 )
 		{
 			if (strstr(tmp,"read")!=NULL)
@@ -181,9 +190,17 @@ void * serverthread(void * parm)
 			if (strstr(tmp,"q")!=NULL)
 			{
 				printf("Quit user: %s\n",pt_user);
+				/*send(tsd,"#####Quit#####",14,0);*/
 				bzero(tmp,MAX_SIZE);
 				close(tsd);
 				pthread_exit(0);
+			}
+			if (strstr(tmp,"test")!=NULL)
+			{
+				printf("<<<TEST>>>\n");
+				send(tsd,"*****text*****",14,0);
+				bzero(tmp,MAX_SIZE);
+
 			}
 			if (strstr(tmp,"ls")!=NULL)
 			{
