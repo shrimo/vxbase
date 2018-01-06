@@ -1,4 +1,4 @@
-/* to compile me in Linux, type:   gcc -o server server.c -lpthread */
+/* to compile me in Linux, type:   gcc -o server server.c -lpthread sx01*/
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -21,9 +21,9 @@ pthread_mutex_t  mut;
 
 int visits =  0;                        /* counts client connections     */
 
-int sesi = 0; /*command number*/
+int sesi = 0; /*Сommand number*/
 
-char buffer [33];
+char buffer [33]; /*Common buffer*/
 
 char current_user[MAX_SIZE];
 
