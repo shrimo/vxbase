@@ -1,3 +1,6 @@
+# cc -fPIC -shared -o libsum.so sum.c
+
+
 import ctypes
 
 _sum = ctypes.CDLL('libsum.so')
